@@ -141,6 +141,12 @@ export default tseslint.config(
         },
     },
     {
+        files: ['src/types/**/*.d.ts'],
+        rules: {
+            '@typescript-eslint/consistent-type-definitions': OFF,
+        },
+    },
+    {
         ignores: [
             'node_modules/*',
             'dist/*',
