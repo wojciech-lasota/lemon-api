@@ -1,100 +1,85 @@
-import { Express, ErrorRequestHandler } from 'express';
-import expressWinston from 'express-winston';
-import morgan, { StreamOptions } from 'morgan';
-import winston, { Logger } from 'winston';
-// import * as Sentry from '@sentry/node';
-// import * as Tracing from '@sentry/tracing';
-import DailyRotateFile from 'winston-daily-rotate-file';
+// import { FastifyInstance } from 'fastify';
+// import winston, { Logger } from 'winston';
+// import DailyRotateFile from 'winston-daily-rotate-file';
 
-// TODO: don't disable this rule
-/* eslint-disable @typescript-eslint/restrict-template-expressions */
-const winstonFormat = winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.errors({ stack: true }),
-    winston.format.splat(),
-    winston.format.printf(({ timestamp, level, message, stack }) => {
-        return stack
-            ? // eslint-disable-next-line @typescript-eslint/no-base-to-string
-              `${timestamp} [${level}] ${message}\n${stack}`
-            : `${timestamp} [${level}] ${message}`;
-    }),
-);
-/* eslint-enable @typescript-eslint/restrict-template-expressions */
+// // Konfiguracja formatu Winston - definiuje jak będą wyglądać logi
+// // TODO: don't disable this rule
+// /* eslint-disable @typescript-eslint/restrict-template-expressions */
+// const winstonFormat = winston.format.combine(
+//     winston.format.timestamp(), // Dodaje timestamp do każdego loga
+//     winston.format.errors({ stack: true }), // Zachowuje stack trace błędów
+//     winston.format.splat(), // Pozwala na string interpolation (printf-style)
+//     winston.format.printf(({ timestamp, level, message, stack }) => {
+//         // Formatuje wiadomość loga - jeśli jest stack trace, dodaje go w nowej linii
+//         return stack
+//             ? `${timestamp} [${level}] ${message}\n${stack}`
+//             : `${timestamp} [${level}] ${message}`;
+//     }),
+// );
+// /* eslint-enable @typescript-eslint/restrict-template-expressions */
 
-export const setupLogging = (
-    app: Express,
-): {
-    errorLogger: ErrorRequestHandler;
-    logger: Logger;
-    // sentryErrorHandler: ErrorRequestHandler;
-} => {
-    // Sentry.init({
-    //     dsn: 'https://fe2d28a5bda54932b1914fdb2e81ab4c@o502294.ingest.sentry.io/4504889416089600',
-    //     integrations: [
-    //         // enable HTTP calls tracing
-    //         new Sentry.Integrations.Http({ tracing: true }),
-    //         // enable Express.js middleware tracing
-    //         new Tracing.Integrations.Express({ app }),
-    //     ],
+// export const setupLogging = (app: FastifyInstance): Logger => {
+//     // Konfiguracja Winston - główna konfiguracja loggera
+//     const winstonConfig = {
+//         format: winstonFormat, // Używa wcześniej zdefiniowanego formatu
+//         transports: [
+//             // Transport do konsoli - wyświetla logi na poziomie 'http' i wyżej
+//             new winston.transports.Console({
+//                 level: 'http',
+//             }),
+//             // Transport do pliku z wszystkimi logami (combined)
+//             // Pliki są rotowane codziennie, archiwizowane i usuwane po 14 dniach
+//             new DailyRotateFile({
+//                 filename: 'logs/combined-%DATE%.log',
+//                 datePattern: 'YYYY-MM-DD', // Format daty w nazwie pliku
+//                 zippedArchive: true, // Kompresuj stare pliki
+//                 maxSize: '20m', // Maksymalny rozmiar pojedynczego pliku
+//                 maxFiles: '14d', // Przechowuj pliki przez 14 dni
+//                 level: 'http', // Loguj od poziomu 'http' w górę
+//             }),
+//             // Transport tylko dla błędów - osobny plik dla łatwiejszego debugowania
+//             new DailyRotateFile({
+//                 filename: 'logs/error-%DATE%.log',
+//                 datePattern: 'YYYY-MM-DD',
+//                 zippedArchive: true,
+//                 maxSize: '20m',
+//                 maxFiles: '30d', // Błędy przechowuj dłużej - 30 dni
+//                 level: 'error', // Tylko błędy (error i fatal)
+//             }),
+//         ],
+//     };
 
-    //     // Set tracesSampleRate to 1.0 to capture 100%
-    //     // of transactions for performance monitoring.
-    //     // We recommend adjusting this value in production
-    //     tracesSampleRate: 1.0,
-    // });
+//     // Tworzenie głównego loggera Winston z naszą konfiguracją
+//     const logger = winston.createLogger(winstonConfig);
 
-    // // RequestHandler creates a separate execution context using domains, so that every
-    // // transaction/span/breadcrumb is attached to its own Hub instance
-    // app.use(Sentry.Handlers.requestHandler());
-    // // TracingHandler creates a trace for every incoming request
-    // app.use(Sentry.Handlers.tracingHandler());
+//     // Dodanie custom logger stream do Fastify
+//     const fastifyLogger = {
+//         stream: {
+//             write: (message: string) => {
+//                 // Usuwamy końcowe znaki nowej linii i logujemy jako info
+//                 logger.info(message.trim());
+//             },
+//         },
+//     };
 
-    const winstonConfig = {
-        format: winstonFormat,
-        transports: [
-            new winston.transports.Console({
-                level: 'http',
-            }),
-            new DailyRotateFile({
-                filename: 'logs/combined-%DATE%.log',
-                datePattern: 'YYYY-MM-DD',
-                zippedArchive: true,
-                maxSize: '20m',
-                maxFiles: '14d',
-                level: 'http',
-            }),
-            new DailyRotateFile({
-                filename: 'logs/error-%DATE%.log',
-                datePattern: 'YYYY-MM-DD',
-                zippedArchive: true,
-                maxSize: '20m',
-                maxFiles: '30d',
-                level: 'error',
-            }),
-        ],
-    };
+//     // Rejestracja hook'ów dla logowania requestów i błędów w Fastify
+//     app.addHook('onRequest', async (request, reply) => {
+//         logger.http(`${request.method} ${request.url} - ${request.ip}`);
+//     });
 
-    const logger = winston.createLogger(winstonConfig);
+//     app.addHook('onResponse', async (request, reply) => {
+//         logger.http(
+//             `${request.method} ${request.url} - ${reply.statusCode} - ${reply.getResponseTime()}ms`,
+//         );
+//     });
 
-    const morganStream: StreamOptions = {
-        write: (message: string) => {
-            logger.info(message.trim());
-        },
-    };
-    app.use(morgan('combined', { stream: morganStream }));
+//     app.addHook('onError', async (request, reply, error) => {
+//         logger.error(`Error in ${request.method} ${request.url}:`, error);
+//     });
 
-    const errorLogger = expressWinston.errorLogger({
-        format: winstonFormat,
-        transports: [
-            new winston.transports.Console({
-                level: 'error',
-            }),
-        ],
-    });
+//     // Zwracamy główny logger do użycia w całej aplikacji
+//     return logger;
+// };
 
-    return {
-        errorLogger,
-        logger,
-        // sentryErrorHandler: Sentry.Handlers.errorHandler(),
-    };
-};
+// // Export typu dla lepszego TypeScript support
+// export type AppLogger = Logger;

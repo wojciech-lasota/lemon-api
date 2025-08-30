@@ -1,14 +1,14 @@
 {
     "compilerOptions": {
-        "baseUrl": "./src/",
+        "baseUrl": "./src/", // base path for non-relative imports
         "target": "esnext",
         "module": "esnext",
-        "esModuleInterop": true,
-        "moduleResolution": "node",
-        "allowArbitraryExtensions": true,
+        "esModuleInterop": true, //import fs from "fs"; instead of import * as fs from "fs" (CommonJS way)
+        "moduleResolution": "node", //import resolving on node style, ts looking for index.ts/js file
+        "allowArbitraryExtensions": true, // allow imports of files with any extension
         "removeComments": true,
-        "declaration": false,
-        "allowSyntheticDefaultImports": true,
+        "declaration": false, // don’t emit type declaration files
+        "allowSyntheticDefaultImports": true, // fake default import for non-ESM modules
         "forceConsistentCasingInFileNames": true,
         "resolveJsonModule": true,
         "strict": true,
@@ -18,7 +18,12 @@
         "isolatedModules": true,
         "skipLibCheck": true,
         "noUnusedParameters": true,
-        "noUnusedLocals": true
+        "noUnusedLocals": true,
+    },
+    "ts-node": {
+        "require": [
+            "tsconfig-paths/register"
+        ]
     },
     "include": [
         "src/**/*",
