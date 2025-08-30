@@ -3,7 +3,7 @@ import type { FastifyInstance, FastifyReply } from 'fastify';
 // const prisma = new PrismaClient();
 
 export const healthCheck = (reply: FastifyReply): void => {
-    reply.status(200).send({ message: 'OK' });
+    reply.status(200).send({ message: `OK` });
 };
 
 export const dbHealthCheck = async (

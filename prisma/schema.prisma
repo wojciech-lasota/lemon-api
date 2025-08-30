@@ -4,6 +4,26 @@
 // Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
+// todo https://www.npmjs.com/package/zod-prisma-types
+generator zod {
+    provider                         = "npx zod-prisma-types"
+    output                           = "./src/generated/zod"
+    useMultipleFiles                 = true // default is false
+    writeBarrelFiles                 = false // default is true
+    createInputTypes                 = false // default is true
+    createModelTypes                 = true
+    addInputTypeValidation           = false // default is true
+    addIncludeType                   = false // default is true
+    addSelectType                    = false
+    validateWhereUniqueInput         = false // default is true
+    createOptionalDefaultValuesTypes = true // default is false
+    createRelationValuesTypes        = true // default is false
+    createPartialTypes               = false
+    useDefaultValidators             = false // default is true
+    coerceDate                       = false // default is true
+    writeNullishInModelTypes         = false // default is false
+}
+
 generator client {
     provider = "prisma-client-js"
 }

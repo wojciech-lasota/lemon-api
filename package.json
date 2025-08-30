@@ -49,7 +49,9 @@
         "typescript": "^5.9.2",
         "typescript-eslint": "^8.41.0",
         "typescript-transformer-esm": "^1.1.0",
-        "vitest": "^3.2.4"
+        "vitest": "^3.2.4",
+        "zod": "^4.1.5",
+        "zod-prisma-types": "^3.2.4"
     },
     "dependencies": {
         "@prisma/client": "^6.15.0",

@@ -24,3 +24,5 @@ temp.*
 logs/
 
 /generated/prisma
+# until ogarne xd
+/prisma/src/
