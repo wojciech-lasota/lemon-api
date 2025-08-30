@@ -154,6 +154,7 @@ export default tseslint.config(
             '.tmp/*',
             'coverage/*',
             '**/*.html',
+            'prisma/*',
         ],
     },
 );
